@@ -23,19 +23,24 @@
   reveals.forEach(el=>observer.observe(el));
  }else reveals.forEach(el=>el.classList.add("visible"));
 
- const studies={
-  "block-calculator":{type:"ENGINEERING TOOL · STREAMLIT",title:"Concrete Block Calculator",description:"A small digital tool exploring practical construction quantity calculations.",overview:"A practical construction calculator concept designed to make block quantity estimation quicker and easier to understand. Expand this case study with the calculation method, assumptions, screenshots, test examples and limitations.",notes:"Add calculation method, input definitions, assumptions, test cases, screenshots, your role and known limitations.",url:"https://concrete-block-calculator-bymanish.streamlit.app/",label:"Open live calculator"},
-  "rainwater-planner":{type:"CIVIL · ENVIRONMENT",title:"Rainwater Harvesting Planner",description:"Exploring simple planning tools for water harvesting.",overview:"An exploration of a digital planning aid for rainwater harvesting. Add the rainfall data source, roof catchment assumptions, storage sizing method, screenshots and a sample project.",notes:"Document rainfall data, catchment area, runoff coefficient, demand assumptions, storage sizing and a worked example.",url:"https://github.com/M13A1N12I9S19H8/rainwaterharvestingplanner",label:"View project repository"},
-  "micro-hydro":{type:"RENEWABLE ENERGY",title:"Micro Hydro Planner",description:"A software exploration around small-scale hydropower planning.",overview:"A software exploration focused on small-scale hydropower planning. Document head and flow inputs, power estimation, efficiency assumptions, design boundaries and a worked example.",notes:"Document gross and net head, design flow, efficiency assumptions and estimated output. State that this is a planning tool, not a substitute for detailed design.",url:"https://github.com/M13A1N12I9S19H8/microhydro",label:"View project repository"},
-  "zen-widget":{type:"WINDOWS UTILITY · PYTHON",title:"Zen Button Widget",description:"A lightweight desktop idea designed to bring a moment of focus into a busy day.",overview:"A lightweight desktop utility concept intended to offer a small pause for focus. Add interface screenshots, interaction details, implementation notes and a demonstration.",notes:"Add screenshots, problem statement, user interaction flow, implementation details and lessons learned.",url:"https://github.com/M13A1N12I9S19H8/Zen_Button_widget",label:"View project repository"},
-  "smart-irrigation":{type:"ARDUINO · STEM",title:"Smart Drip Irrigation",description:"A hands-on robotics and IoT learning project using sensors and automation.",overview:"A hands-on STEM project demonstrating how sensors and simple automation can support irrigation. Add a circuit diagram, component list, control logic, prototype photographs and test observations.",notes:"Add component list, wiring diagram, sensor thresholds, control logic, prototype photos and observed results.",url:"https://youtu.be/bISH9VagwCc",label:"Watch project video"}
+ const readStudy=(key)=>{
+  const t=document.getElementById("study-"+key);if(!t)return null;
+  const f=(n)=>{const node=t.content.querySelector('[data-field="'+n+'"]');return node?node.textContent.trim():"";};
+  return{type:f("type"),title:f("title"),description:f("description"),overview:f("overview"),image:(t.content.querySelector('[data-field="screenshot"]')||{getAttribute:()=>""}).getAttribute("src")||"",imageAlt:(t.content.querySelector('[data-field="screenshot"]')||{getAttribute:()=>""}).getAttribute("alt")||"",url:t.dataset.url||"#",label:t.dataset.label||"Open project"};
  };
- const el={type:document.getElementById("dialog-type"),title:document.getElementById("dialog-title"),description:document.getElementById("dialog-description"),overview:document.getElementById("dialog-overview"),notes:document.getElementById("dialog-notes"),link:document.getElementById("dialog-link")};
+ const el={type:document.getElementById("dialog-type"),title:document.getElementById("dialog-title"),description:document.getElementById("dialog-description"),overview:document.getElementById("dialog-overview"),shot:document.getElementById("dialog-shot"),image:document.getElementById("dialog-image"),caption:document.getElementById("dialog-caption"),link:document.getElementById("dialog-link")};
+ const showShot=(p)=>{
+  const img=el.image;
+  const missing=()=>{img.hidden=true;el.shot.classList.add("no-image");el.caption.textContent="Screenshot coming soon";};
+  img.hidden=false;el.shot.classList.remove("no-image");el.caption.textContent=p.imageAlt;img.alt=p.imageAlt;
+  img.onerror=missing;
+  if(p.image)img.src=p.image;else{img.removeAttribute("src");missing();}
+ };
  let lastTrigger=null;
  const close=()=>{if(dialog&&dialog.open)dialog.close();document.body.classList.remove("dialog-open");if(lastTrigger)lastTrigger.focus();};
  document.querySelectorAll("[data-case-study]").forEach(trigger=>trigger.addEventListener("click",()=>{
-  const p=studies[trigger.dataset.caseStudy];if(!p||!dialog)return;lastTrigger=trigger;
-  el.type.textContent=p.type;el.title.textContent=p.title;el.description.textContent=p.description;el.overview.textContent=p.overview;el.notes.textContent=p.notes;
+  const p=readStudy(trigger.dataset.caseStudy);if(!p||!dialog)return;lastTrigger=trigger;
+  el.type.textContent=p.type;el.title.textContent=p.title;el.description.textContent=p.description;el.overview.textContent=p.overview;showShot(p);
   el.link.href=p.url;el.link.textContent=p.label+" ↗";
   if(typeof dialog.showModal==="function"){dialog.showModal();document.body.classList.add("dialog-open");closeButton?.focus();}
   else window.open(p.url,"_blank","noopener");
